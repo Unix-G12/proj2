@@ -51,7 +51,7 @@ int main(int argc, char** argv){
     	move(3,0);
 	int dy=indy;
 	if(indy>ydown){dy=ydown;} 
-	for(int i=0; i<ydown-1; i++){
+	for(int i=0; i<ydown; i++){
 		for(int j=0; j<xmax; j++){    
 			printw("%c", arr2[i][j]);
 //printw("%d", ydown);
