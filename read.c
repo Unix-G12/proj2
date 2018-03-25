@@ -20,6 +20,7 @@ int main(int argc, char** argv){
     //printf(arr);
 
 	initscr();
+	cbreak();
     	int xmax, ymax, y, x;
     	getmaxyx(stdscr, ymax, xmax);
    	getyx(stdscr, y ,x);
@@ -48,6 +49,68 @@ int main(int argc, char** argv){
     	printw("Group 12 - %s", argv[0]);
     	attroff(A_PROTECT);
     	attroff(A_BOLD);
+    	move(3,0);
+	int dy=indy;
+	if(indy>ydown){dy=ydown;} 
+	for(int i=yup; i<ydown; i++){
+		for(int j=0; j<xmax; j++){    
+			printw("%c", arr2[i][j]);
+//printw("%d", ydown);
+		}
+	}
+    	int t=0;
+/*    while(arr[t]!=NULL){
+	addch(arr[t]);
+	t++;
+    }
+*/
+    	refresh();
+	keypad(stdscr, true);
+   	//f = fopen("outfile.txt", "w");
+    	//fprintf(f,"%s", arr);
+	//fclose(f);
+    	int c, dInd=0;
+    	char dat[10000];
+    	while((c=getch())!=27){
+		switch(c){
+			case KEY_DOWN:
+				//clear();
+				
+				getyx(stdscr, y ,x);
+				if(indy>ydown){
+					ydown++; yup++;
+					move(3,0);  
+					for(int i=yup; i<ydown; i++){
+						for(int j=0; j<xmax; j++){    
+							printw("%c", arr2[i][j]);
+						}
+					}
+					refresh();
+				}
+				break;
+			case KEY_UP:
+				getyx(stdscr, y ,x);
+				if(yup>0){
+					yup--; ydown--;
+					move(3,0);  
+					for(int i=yup; i<ydown; i++){
+						for(int j=0; j<xmax; j++){    
+							printw("%c", arr2[i][j]);
+						}
+					}
+					refresh();
+				}
+				break;
+			
+       
+    		}
+	}
+	refresh();
+    	endwin();
+    //for(int i=0; i<indy; i++){printf("%s", arr2[i]);}  				
+    //printf("%s", data);
+    	return 0;
+}
     	move(3,0);
 	int dy=indy;
 	if(indy>ydown){dy=ydown;} 
