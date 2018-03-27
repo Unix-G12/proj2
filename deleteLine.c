@@ -7,9 +7,9 @@ void deleteLine(int y, int x, int maxx, int lncount, char arr[][]) {
 	move(y,x);
 	int iter = maxx;
 	
-	for(; lncount > y; y++) {
+	for(; lncount > y; lncount--) {
 		while(0 < iter) {	
-		memmove(&arr[y][x], &arr[y][x + 1], maxx - x);
+		memmove(&arr[y][x], &arr[y+1][x], maxx - x);
 		iter--;
 		}
 	}
