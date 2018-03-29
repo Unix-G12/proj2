@@ -17,14 +17,15 @@ int main(int argc, char **argv) {
   }
 
   char buff[10000];
-  int row, col, y, x, maxrow;
+  int row, col;
+  int y, x; 
 
   initscr();
-  getmaxyx(stdscr, maxrow, col);
+  getmaxyx(stdscr, row, col);
   row = 0;
   while(fgets(buff, sizeof buff, file) != NULL) {
     getyx(stdscr, y, x);
-    if(y == (maxrow - 1)) {
+    if(y == (row - 1)) {
       printw("Press any key");
       getch();
       clear();
