@@ -1,13 +1,7 @@
 #ifndef EDIT_H
 #define EDIT_H
+#include <ncurses.h>
 
-#include <string>
-
-    void left();
-    void right();
-    void up();
-    void down();
-    void backspace();
-    void insert();
+int edit_(WINDOW *stdscr, int y, int x, char c);
 
 #endif
