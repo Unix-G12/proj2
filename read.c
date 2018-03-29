@@ -1,8 +1,17 @@
 #include <stdio.h>
 #include <ctype.h>
-#
 #include<ncurses.h>
-//using namespace std;
+
+#define SIZE 50000
+
+struct bufferStruct {
+	//char **buffer = (char **)malloc(sizeof(char) * SIZE);
+	char **line;
+	int lineAmt;
+
+} buffer;
+
+void printFurthest(int my, int mx);
 
 int main(int argc, char** argv){
 
@@ -12,7 +21,7 @@ int main(int argc, char** argv){
     }
 	char arr[50000];
 	int ind = 0;
-	char data[1000];
+	char data[10000];
 
    	while(fgets(data, 1000, f)){ 
 		int ind2=0;
@@ -68,22 +77,39 @@ int main(int argc, char** argv){
 	keypad(stdscr, true);
 	int c, dInd = 0;
 	int cur_x = 0, cur_y = 0, temp_x = 0, temp_y = 0;
-	int cmdMode = 0;
-	int copyMode = 0;
+	int furthest_x = 0, furthest_y = 0;
+	int cmdMode = 0, copyMode = 0, searchMode = 0, replaceMode = 0;
 	int editMode = 1;
 	char copyQuery[xmax-1];
+	char searchQuery[32];
 	int s, p;//copy & paste for-loop vars
 	int m, n;//saving ncurses window to array vars
 	char windowBuffer[ymax][xmax];
+	int a, b;
+	for (a = 0; a < ymax; a++) {
+		for (b = 0; b < xmax; b++) {
+			windowBuffer[a][b] = ' ';
+		}
+	}
+
+	windowBuffer[ymax][xmax] = '\0';
+	//saveBuffer[furthest_y][xmax];
+	char *wb;
+	//wb = &windowBuffer;
 
 	int start_copy_x, start_copy_y, end_copy_x, end_copy_y;
+	int c_y, c_x;
+
+	scrollok(stdscr, TRUE);
 	while((c = getch()) != 27) {
 	switch(c){
 		case 4://ctrl+d -> delete line
 			getyx(stdscr, cur_y, cur_x);
-			move(cur_y, 0);
-			clrtoeol();
-			move(cur_y, cur_x);
+			getyx(stdscr, temp_y, temp_x);
+			for (c_x = 0; c_x < xmax; c_x++) {
+				mvprintw(cur_y, c_x, "%c", ' ');
+			}
+			move(temp_y+1, temp_x);
 			break;
 		case 5://ctrl+e -> command mode
 			editMode = 0;
@@ -115,7 +141,7 @@ int main(int argc, char** argv){
 			if (copyMode) {
 				getyx(stdscr, end_copy_y, end_copy_x);
 				getyx(stdscr, temp_y, temp_x);
-				mvprintw(0, 0, "%s", "End index chosen.");
+				mvprintw(0, 0, "%s", "End index chosen & string copied.");
 				move(temp_y, temp_x);
 				for (s = start_copy_x; s < end_copy_x; s++) {
 					copyQuery[s] = mvinch(start_copy_y, s);
@@ -135,20 +161,33 @@ int main(int argc, char** argv){
 			editMode = 1;
 			cmdMode = 0;
 			getyx(stdscr, temp_y, temp_x);
-			mvprintw(0, 60, "%s", "-- EDIT MODE --\n");
+			mvprintw(0, 60, "%s", "-- INSERT MODE --\n");
 			move(temp_y, temp_x);
 			break;
 
+		case 22://ctrl+v -> search
+			//mvprintw(1, 0, "%s", "Enter search & replace term separated by space then press ctrl+g: ");
+
+
+			break;
 		case 23://ctrl+w -> save
-			mvprintw(0, 0, "%s", "File saved!");
-			for (int m = 0; m < ymax; m++) {
-				for (int n = 0; n < xmax; n++) {
+			for (int m = 1; m < ymax; m++) {//
+				for (int n = 0; n < xmax-1; n++) {
 					windowBuffer[m][n] = mvinch(m, n);
 				}
 			}
-			FILE *save_file = fopen(argv[1], "wb");
-			fwrite(windowBuffer, sizeof(char), sizeof(windowBuffer), save_file);
+			//saveFile(wb, furthest_y, xmax);
+			
+			//windowBuffer[furthest_y][furthest_x] = "\0";
+			FILE *save_file = fopen("temp.txt", "w+");
+			if(fwrite(windowBuffer, sizeof(char), sizeof(windowBuffer), save_file))
+			{
+				getyx(stdscr, temp_y, temp_x);
+				mvprintw(0, 0, "%s", "File saved!");
+				move(temp_y, temp_x);
+			}
 			fclose(save_file);
+			//exit(1);
 			break;
 
 		case KEY_LEFT:
@@ -164,10 +203,11 @@ int main(int argc, char** argv){
 
 		case KEY_UP:
 			getyx(stdscr, cur_y, cur_x);
-			if (cur_y - 1 > 0)
+			if (cur_y - 2 > 0)
 				move(cur_y-1, cur_x);
-			break;
 
+
+			break;
 		case KEY_DOWN:
 			getyx(stdscr, cur_y, cur_x);
 			move(cur_y+1, cur_x);
@@ -201,11 +241,15 @@ int main(int argc, char** argv){
 			}
 			break;
 
-		default:
+		default://store entered char into character array
 			if (editMode) {
 				getyx(stdscr, y, x);
 				mvprintw(y, x, "%c", c);
-				addchar();
+				if (y >= furthest_y) {
+					furthest_x = x;
+					furthest_y = y;
+				}
+				printFurthest(furthest_y, furthest_x);
 				break;
 			}
 			//getyx(stdscr, temp_y, temp_x);
@@ -219,10 +263,32 @@ int main(int argc, char** argv){
     return 0;
 }
 
+void printFurthest(int my, int mx) {
+	int temp_y, temp_x;
+	getyx(stdscr, temp_y, temp_x);
+	mvprintw(0, 0, "(f_y:%d, f_x:%d)", my, mx);
+	move(temp_y, temp_x);
+}
+
 void addchar() {
 	//check for bounds when adding char, wrapping when needed
 }
 
 void clearInfo() {
 	printw(0, 0, "%s", "                      ");
+}
+
+void saveFile(char *screenBuff, int furthest_y, int xmax) {
+	FILE *s;
+	s = fopen("temp.txt", "w+");
+	int m, n, temp_y, temp_x;
+	for (m = 0; m < furthest_y; m++) {
+		for (n = 0; n < xmax; n++) {
+			//fprintf(s, "%d", *(*(screenBuff + m) + n));
+		}
+	}
+	getyx(stdscr, temp_y, temp_x);
+	mvprintw(0, 0, "%s", "File saved?");
+	move(temp_y, temp_x);
+	fclose(s);
 }
